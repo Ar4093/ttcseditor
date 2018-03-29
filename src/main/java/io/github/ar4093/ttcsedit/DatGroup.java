@@ -23,6 +23,10 @@ public class DatGroup {
 		this(dg.getColorModifier(), dg.getModType(), dg.getSpecularity());
 	}
 	
+	public DatGroup(String s) {
+		this(Integer.parseInt(s.substring(0,1),16),(Integer.parseInt(s.substring(1,2),16)),(Integer.parseInt(s.substring(2,4),16)));
+	}
+	
 	public int getColorModifier () {
 		return colormod;
 	}
@@ -56,5 +60,9 @@ public class DatGroup {
 	
 	public String toString () {
 		return String.format("Dat Group (%d, %d, %d | %X%X%02X)", colormod, modtype, specularity, colormod, modtype, specularity);
+	}
+	
+	public String asString() {
+		return String.format("%X%X%02X", colormod, modtype, specularity);
 	}
 }

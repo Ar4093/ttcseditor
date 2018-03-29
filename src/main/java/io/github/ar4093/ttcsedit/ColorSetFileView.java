@@ -12,6 +12,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class ColorSetFileView extends HBox {
@@ -19,6 +21,7 @@ public class ColorSetFileView extends HBox {
 	//private Spinner<Integer> colormod, spec1, spec2, spec;
 	//private ChoiceBox<String> modtype;
 	private ChoiceBox<String> mod_type, mod_color;
+	private TextField manual_value;
 	private ColorsetFile file;
 	private ColorsetDatFile datfile;
 	private Canvas canvas;
@@ -26,6 +29,13 @@ public class ColorSetFileView extends HBox {
 	private double CELL_SIZE = 30;
 	private int currentSet = -1;
 	private boolean updating = false;
+	private List<String> known_modvalues = Arrays.asList(
+		"0B19", "4B1A", "0B32", "4B33", "8B3E", "CB3F", "0B41", "0B4B",
+		"2B19", "2B1A", "AB25", "2B32", "6B33", "AB3E", "2B41", "2B4B",
+		"4B19", "8B1A", "CB25", "4B32", "8B33", "CB3E", "4B41", "4B4B",
+		"0F40", "0F41", "CF3F", "4F41", "CB44", "3B41", "891A", "8B43",
+		"0000"
+	);
 	
 	public ColorSetFileView ( ColorsetFile file, ColorsetDatFile datfile ) {
 		setAlignment(Pos.CENTER);
@@ -40,18 +50,18 @@ public class ColorSetFileView extends HBox {
 		cset.setAlignment(Pos.CENTER_LEFT);
 		if (datfile != null) {
 			GridPane datview = new GridPane();
-			Label label1 = new Label("Color Modifier");
-			Label label2 = new Label("Mod Type");
-			Label label3 = new Label("Specularity");
+			Label label1 = new Label("Dye Modifier");
+			//Label label2 = new Label("Mod Type");
+			//Label label3 = new Label("Specularity");
 			label1.setPadding(new Insets(5));
 			label1.setMinWidth(100);
-			label2.setPadding(new Insets(5));
+			/*label2.setPadding(new Insets(5));
 			label2.setMinWidth(100);
 			label3.setPadding(new Insets(5));
-			label3.setMinWidth(100);
+			label3.setMinWidth(100);*/
 			datview.add(label1, 0, 0);
-			datview.add(label2, 0, 1);
-			datview.add(label3, 0, 2);
+			/*datview.add(label2, 0, 1);
+			datview.add(label3, 0, 2);*/
 			Button btnCopyDat = new Button("Copy Dye Modifiers");
 			Button btnPasteDat = new Button("Paste Dye Modifiers");
 			btnPasteDat.setDisable(true);
@@ -79,36 +89,82 @@ public class ColorSetFileView extends HBox {
 			datview.add(colormod, 1, 1);
 			datview.add(modtype, 1, 0);
 			datview.add(spec, 1, 2);*/
-			datview.add(btnCopyDat, 2, 1);
-			datview.add(btnPasteDat, 2, 2);
+			mod_type = new ChoiceBox<>();
+			mod_color = new ChoiceBox<>();
+			manual_value = new TextField();
+			mod_type.setMinWidth(120);
+			mod_color.setMinWidth(120);
+			manual_value.setMinWidth(120);
+			mod_type.setMaxWidth(120);
+			mod_color.setMaxWidth(120);
+			manual_value.setMaxWidth(120);
+			manual_value.setVisible(false);
+			datview.add(mod_type, 1, 0);
+			datview.add(mod_color, 2, 0);
+			datview.add(manual_value, 2, 0);
+			datview.add(btnCopyDat, 1, 1);
+			datview.add(btnPasteDat, 2, 1);
 			datview.setAlignment(Pos.CENTER_LEFT);
 			datview.setPadding(new Insets(5, 0, 0, 0));
 			datview.setHgap(10);
 			datview.setVgap(10);
 			//colormod.setTooltip(new Tooltip("Known values:\n0: Uses default dye colour\n2: Darker than normal\n5: Brighter than normal"));
 			cset.getChildren().add(datview);
+			mod_color.getItems().setAll("-");
+			mod_type.getItems().setAll("Default", "Lighter", "Darker", "Undyed", "Other", "Manual");
+			mod_type.getSelectionModel().selectedItemProperty().addListener((ov, o, n) -> {
+				manual_value.setVisible(false);
+				mod_color.setVisible(true);
+				mod_color.setDisable(false);
+				switch(n) {
+					case "Default":
+						mod_color.getItems().setAll(known_modvalues.subList(0,8));
+						break;
+					case "Lighter":
+						mod_color.getItems().setAll(known_modvalues.subList(8,16));
+						break;
+					case "Darker":
+						mod_color.getItems().setAll(known_modvalues.subList(16,24));
+						break;
+					case "Other":
+						mod_color.getItems().setAll(known_modvalues.subList(24,32));
+						break;
+					case "Undyed":
+						mod_color.getItems().setAll("0000");
+						mod_color.setDisable(true);
+						setDatGroup(new DatGroup("0000"));
+						break;
+					case "Manual":
+						mod_color.getItems().setAll(" ");
+						mod_color.setVisible(false);
+						manual_value.setVisible(true);
+						break;
+				}
+			});
+			mod_color.getSelectionModel().selectedItemProperty().addListener((ov, o, n) -> {
+				setDatGroup(new DatGroup(n));
+			});
+			manual_value.focusedProperty().addListener((ov,o,n) -> {
+				if(!n) {
+					if (manual_value.getText().length() != 4)
+						manual_value.setStyle("-fx-text-fill: red");
+					else {
+						manual_value.setStyle("-fx-text-fill: black");
+						setDatGroup(new DatGroup(manual_value.getText()));
+					}
+				}
+			});
+			manual_value.setOnAction(e -> {
+				if (manual_value.getText().length() != 4)
+					manual_value.setStyle("-fx-text-fill: red");
+				else {
+					manual_value.setStyle("-fx-text-fill: black");
+					setDatGroup(new DatGroup(manual_value.getText()));
+				}
+			});
 		}
 		initCanvas();
 		activateSet(-1, 0);
-		if (datfile != null) {
-			/*colormod.valueProperty().addListener(( ov, o, n ) -> {
-				if (!updating) {
-					datfile.getGroupModifiable(currentSet).setColorModifier(n);
-				}
-			});
-			spec.valueProperty().addListener(( ov, o, n ) -> {
-				if (!updating) {
-					datfile.getGroupModifiable(currentSet).setSpecularity(n);
-				}
-			});
-			modtype.getSelectionModel().selectedItemProperty().addListener(( ov, o, n ) -> {
-				if (!updating) {
-					int val = Integer.parseInt(n.substring(0, 1), 16);
-					datfile.getGroupModifiable(currentSet).setModType(val);
-				}
-			});*/
-			
-		}
 		getChildren().add(canvas);
 		getChildren().add(cset);
 		
@@ -119,34 +175,27 @@ public class ColorSetFileView extends HBox {
 			return;
 		updating = true;
 		datfile.setGroup(currentSet, dg);
-		colormod.getValueFactory().setValue(dg.getColorModifier());
-		spec.getValueFactory().setValue(dg.getSpecularity());
-		int i = dg.getModType();
-		switch (i) {
-			case 0:
-				modtype.getSelectionModel().select(0);
-				break;
-			case 11:
-				modtype.getSelectionModel().select(1);
-				break;
-			case 13:
-				modtype.getSelectionModel().select(2);
-				break;
-			default:
-				String a = String.format("%X", i);
-				boolean found = false;
-				for (int k = 0; !found && k < modtype.getItems().size(); k++) {
-					if (modtype.getItems().get(k).startsWith(a)) {
-						modtype.getSelectionModel().select(k);
-						found = true;
-					}
-				}
-				if (!found) {
-					modtype.setTooltip(new Tooltip("If you want to help out with understanding this value, let the TexTools discord know about this. Include this value and what piece of gear you were editing. Thanks!"));
-					modtype.getItems().add(String.format("%s - Unknown (see tooltip)", a));
-					modtype.getSelectionModel().select(modtype.getItems().indexOf(String.format("%s - Unknown (see tooltip)", a)));
-				}
-				break;
+		String ds = dg.asString();
+		if(!known_modvalues.contains(ds)) {
+			mod_type.getSelectionModel().select("Manual");
+			manual_value.setText(ds);
+			System.out.println("Not found: "+ds);
+		}
+		else {
+			int g = known_modvalues.indexOf(ds) / 8;
+			switch(g) {
+				case 0:
+					mod_type.getSelectionModel().select("Default");break;
+				case 1:
+					mod_type.getSelectionModel().select("Lighter");break;
+				case 2:
+					mod_type.getSelectionModel().select("Darker");break;
+				case 3:
+					mod_type.getSelectionModel().select("Other");break;
+				case 4:
+					mod_type.getSelectionModel().select("Undyed");break;
+			}
+			mod_color.getSelectionModel().select(ds);
 		}
 		updating = false;
 	}
