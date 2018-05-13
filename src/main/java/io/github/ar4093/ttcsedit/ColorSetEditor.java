@@ -30,11 +30,12 @@ public class ColorSetEditor extends Application {
 	private Stage window;
 	private TabPane tabpane;
 	private TreeView<io.github.ar4093.ttcsedit.MtrlFileDesc> files;
-	private static boolean DEBUG = false;
-	private static BufferedWriter logwriter;
+	static boolean DEBUG = false;
+	static boolean DEBUG2 = false;
+	static BufferedWriter logwriter;
 	
 	public static void main ( String[] args ) {
-		if(DEBUG) {
+		if(DEBUG || DEBUG2) {
 			try {
 				logwriter = new BufferedWriter(new FileWriter(new File("colorseteditor.log")));
 				logwriter.write("Starting up...\nOS: "+System.getProperty("os.name")+"\n");

@@ -62,8 +62,8 @@ public class ColorSetFileView extends HBox {
 			datview.add(label1, 0, 0);
 			/*datview.add(label2, 0, 1);
 			datview.add(label3, 0, 2);*/
-			Button btnCopyDat = new Button("Copy Dye Modifiers");
-			Button btnPasteDat = new Button("Paste Dye Modifiers");
+			Button btnCopyDat = new Button("Copy Dye Modifier");
+			Button btnPasteDat = new Button("Paste Dye Modifier");
 			btnPasteDat.setDisable(true);
 			btnCopyDat.setOnAction(e -> {
 				if (!Clipboard.hasColor())

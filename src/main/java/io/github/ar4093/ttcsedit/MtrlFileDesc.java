@@ -27,7 +27,7 @@ public class MtrlFileDesc {
 	@Override
 	public String toString () {
 		if(dummy)
-			return "No colourset files found.";
+			return "No colourset files found. Use 'Change Folder' if you have them in a different place.";
 		if (f.isDirectory())
 			return f.getName();
 		else

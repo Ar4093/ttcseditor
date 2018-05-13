@@ -18,7 +18,7 @@ public class HFloat {
 		else {
 			int hbias = 15;
 			int sbias = 127;
-			int sign = 0;
+			int sign = i >> 15 & 1;
 			int exponent = ((i >> 10) & 0x1F) - hbias;
 			int mantissa = i & 0x3FF;
 			int nval = (sign << 31) | ((exponent + sbias) << 23) | (mantissa << 13);
@@ -28,6 +28,9 @@ public class HFloat {
 	
 	public HFloat ( byte upper, byte lower ) {
 		this(((upper < 0 ? 256 + upper : upper) << 8) | (lower < 0 ? 256 + lower : lower));
+		if(ColorSetEditor.DEBUG2) {
+			try {ColorSetEditor.logwriter.write(String.format("Instanced new Hfloat: %02X %02X -> %s\n", upper, lower, this.toByteString())); ColorSetEditor.logwriter.flush();} catch(Exception e){e.printStackTrace();}
+		}
 	}
 	
 	public String toString () {
@@ -52,7 +55,7 @@ public class HFloat {
 		int hbias = 15;
 		int sbias = 127;
 		int raw = Float.floatToIntBits(value);
-		int sign = 0;
+		int sign = value<0?1:0;
 		int exponent = ((raw >> 23) & 0xFF) - sbias;
 		int mantissa = raw & 0x7FFFFF;
 		return (sign << 15) | ((exponent + hbias) << 10) | (mantissa >> 13);
