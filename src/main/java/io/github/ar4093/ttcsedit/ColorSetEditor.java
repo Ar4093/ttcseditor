@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class ColorSetEditor extends Application {
-	private static final String VERSION = "2.1.1";
+	private static final String VERSION = "2.2.1";
 	private static final String WINDOW_TITLE_BASE = "TexTools Colour Set Editor";
 	private String savePath = "";
 	private Stage window;

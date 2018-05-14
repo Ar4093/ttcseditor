@@ -36,6 +36,7 @@ public class ColorSetFileView extends HBox {
 		"0F40", "0F41", "CF3F", "4F41", "CB44", "3B41", "891A", "8B43",
 		"0000"
 	);
+	private List<String> other_desc = Arrays.asList("A lot lighter, glowy", "Lighter, glowy", "Lighter, glowy", "A lot lighter, glowy", "Light Gold", "Black or a lot darker", "Lighter", "Silver");
 	
 	public ColorSetFileView ( ColorsetFile file, ColorsetDatFile datfile ) {
 		setAlignment(Pos.CENTER);
@@ -119,25 +120,35 @@ public class ColorSetFileView extends HBox {
 				switch(n) {
 					case "Default":
 						mod_color.getItems().setAll(known_modvalues.subList(0,8));
+						mod_color.setTooltip(null);
 						break;
 					case "Lighter":
 						mod_color.getItems().setAll(known_modvalues.subList(8,16));
+						mod_color.setTooltip(null);
 						break;
 					case "Darker":
 						mod_color.getItems().setAll(known_modvalues.subList(16,24));
+						mod_color.setTooltip(null);
 						break;
 					case "Other":
 						mod_color.getItems().setAll(known_modvalues.subList(24,32));
+						StringBuilder sb = new StringBuilder();
+						sb.append("Known values: ");
+						for(int i=0; i<mod_color.getItems().size(); i++)
+							sb.append("\n").append(known_modvalues.get(24+i)).append(" - ").append(other_desc.get(i));
+						mod_color.setTooltip(new Tooltip(sb.toString()));
 						break;
 					case "Undyed":
 						mod_color.getItems().setAll("0000");
 						mod_color.setDisable(true);
 						setDatGroup(new DatGroup("0000"));
+						mod_color.setTooltip(null);
 						break;
 					case "Manual":
 						mod_color.getItems().setAll(" ");
 						mod_color.setVisible(false);
 						manual_value.setVisible(true);
+						mod_color.setTooltip(null);
 						break;
 				}
 			});
