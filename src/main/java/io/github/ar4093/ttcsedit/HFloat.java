@@ -13,17 +13,13 @@ public class HFloat {
 	}
 	
 	public HFloat ( int i ) {
-		if (i == 0x4000)
-			value = 0.0f;
-		else {
-			int hbias = 15;
-			int sbias = 127;
-			int sign = i >> 15 & 1;
-			int exponent = ((i >> 10) & 0x1F) - hbias;
-			int mantissa = i & 0x3FF;
-			int nval = (sign << 31) | ((exponent + sbias) << 23) | (mantissa << 13);
-			value = Float.intBitsToFloat(nval);
-		}
+		int hbias = 15;
+		int sbias = 127;
+		int sign = i >> 15 & 1;
+		int exponent = ((i >> 10) & 0x1F) - hbias;
+		int mantissa = i & 0x3FF;
+		int nval = (sign << 31) | ((exponent + sbias) << 23) | (mantissa << 13);
+		value = Float.intBitsToFloat(nval);
 	}
 	
 	public HFloat ( byte upper, byte lower ) {
