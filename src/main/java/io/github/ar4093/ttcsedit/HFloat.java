@@ -2,6 +2,8 @@ package io.github.ar4093.ttcsedit;
 
 public class HFloat {
 	float value;
+	float eps = 0.0003f;
+	
 	
 	public HFloat ( float f ) {
 		value = f;
@@ -38,6 +40,8 @@ public class HFloat {
 	}
 	
 	public int intValue () {
+		if(value < eps)
+			return 0;
 		return (int) Math.ceil(value * 255f);
 	}
 	
