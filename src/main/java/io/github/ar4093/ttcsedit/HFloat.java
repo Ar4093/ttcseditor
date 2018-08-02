@@ -38,7 +38,7 @@ public class HFloat {
 	}
 	
 	public int intValue () {
-		return (int) Math.round(value * 255f);
+		return (int) Math.ceil(value * 255f);
 	}
 	
 	public String toByteString () {

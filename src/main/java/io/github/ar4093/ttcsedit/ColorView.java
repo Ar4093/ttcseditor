@@ -47,7 +47,7 @@ public class ColorView extends HBox {
 				typeText.setText("Metallic");
 				break;
 			case 2:
-				final Tooltip t = new Tooltip("Material Type\n\nKnown values (details in the Reference sheet on the TT discord):\n" + "0-39: Leather\n40-51: Fabric\n52-59: Smooth Metal\n60-63: Fabric (square pattern)\n" + "64-71: Weathered Metal\n72-79: Leather?\n80-87: Metal\n88-91: Chain Mail\n92-95: Scales");
+				final Tooltip t = new Tooltip("Material Type (Detailed information\nand known values in the reference information sheet (TT discord)");
 				alpha.setTooltip(t);
 				typeText.setText("Glow");
 				break;

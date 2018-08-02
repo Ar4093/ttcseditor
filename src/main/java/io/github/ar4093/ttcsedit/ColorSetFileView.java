@@ -22,6 +22,7 @@ public class ColorSetFileView extends HBox {
 	//private ChoiceBox<String> modtype;
 	private ChoiceBox<String> mod_type, mod_color;
 	private TextField manual_value;
+	private Label lbl_row;
 	private ColorsetFile file;
 	private ColorsetDatFile datfile;
 	private Canvas canvas;
@@ -38,6 +39,8 @@ public class ColorSetFileView extends HBox {
 	);
 	private List<String> other_desc = Arrays.asList("A lot lighter, glowy", "Lighter, glowy", "Lighter, glowy", "A lot lighter, glowy", "Light Gold", "Black or a lot darker", "Lighter", "Silver");
 	
+	private int[] colrows = {0, 25, 31, 71, 89, 108, 125, 142, 157, 172, 187, 201, 215, 229, 242, 255};
+	
 	public ColorSetFileView ( ColorsetFile file, ColorsetDatFile datfile ) {
 		setAlignment(Pos.CENTER);
 		regular = new ColorView(0, this);
@@ -46,23 +49,21 @@ public class ColorSetFileView extends HBox {
 		four = new ColorView(3, this);
 		this.file = file;
 		this.datfile = datfile;
+		lbl_row = new Label();
+		lbl_row.setTextAlignment(TextAlignment.CENTER);
+		lbl_row.setTextFill(Color.DARKBLUE);
+		HBox hb = new HBox();
+		hb.getChildren().add(lbl_row);
+		hb.setAlignment(Pos.CENTER);
 		VBox cset = new VBox();
-		cset.getChildren().addAll(regular, metallic, glow, four);
+		cset.getChildren().addAll(hb,regular, metallic, glow, four);
 		cset.setAlignment(Pos.CENTER_LEFT);
 		if (datfile != null) {
 			GridPane datview = new GridPane();
 			Label label1 = new Label("Dye Modifier");
-			//Label label2 = new Label("Mod Type");
-			//Label label3 = new Label("Specularity");
 			label1.setPadding(new Insets(5));
 			label1.setMinWidth(100);
-			/*label2.setPadding(new Insets(5));
-			label2.setMinWidth(100);
-			label3.setPadding(new Insets(5));
-			label3.setMinWidth(100);*/
 			datview.add(label1, 0, 0);
-			/*datview.add(label2, 0, 1);
-			datview.add(label3, 0, 2);*/
 			Button btnCopyDat = new Button("Copy Dye Modifier");
 			Button btnPasteDat = new Button("Paste Dye Modifier");
 			btnPasteDat.setDisable(true);
@@ -75,21 +76,6 @@ public class ColorSetFileView extends HBox {
 				setDatGroup(Clipboard.getDatGroup());
 				System.out.println("Pasted Dat");
 			});
-			/*colormod = new Spinner<>(0, 15, 0, 1);
-			colormod.setMaxWidth(80);
-			colormod.getEditor().setAlignment(Pos.CENTER_RIGHT);
-			colormod.setEditable(true);
-			modtype = new ChoiceBox<>();
-			modtype.getItems().addAll("0 - Unaffected", "B - Diffuse", "D - Glow");
-			spec1 = new Spinner<>(0, 15, 0, 1);
-			spec2 = new Spinner<>(0, 15, 0, 1);
-			spec = new Spinner<>(0, 255, 0, 1);
-			spec.setMaxWidth(80);
-			spec.setEditable(true);
-			spec.getEditor().setAlignment(Pos.CENTER_RIGHT);
-			datview.add(colormod, 1, 1);
-			datview.add(modtype, 1, 0);
-			datview.add(spec, 1, 2);*/
 			mod_type = new ChoiceBox<>();
 			mod_color = new ChoiceBox<>();
 			manual_value = new TextField();
@@ -109,7 +95,6 @@ public class ColorSetFileView extends HBox {
 			datview.setPadding(new Insets(5, 0, 0, 0));
 			datview.setHgap(10);
 			datview.setVgap(10);
-			//colormod.setTooltip(new Tooltip("Known values:\n0: Uses default dye colour\n2: Darker than normal\n5: Brighter than normal"));
 			cset.getChildren().add(datview);
 			mod_color.getItems().setAll("-");
 			mod_type.getItems().setAll("Default", "Lighter", "Darker", "Undyed", "Other", "Manual");
@@ -122,11 +107,11 @@ public class ColorSetFileView extends HBox {
 						mod_color.getItems().setAll(known_modvalues.subList(0,8));
 						mod_color.setTooltip(null);
 						break;
-					case "Lighter":
+					case "Darker":
 						mod_color.getItems().setAll(known_modvalues.subList(8,16));
 						mod_color.setTooltip(null);
 						break;
-					case "Darker":
+					case "Lighter":
 						mod_color.getItems().setAll(known_modvalues.subList(16,24));
 						mod_color.setTooltip(null);
 						break;
@@ -198,9 +183,9 @@ public class ColorSetFileView extends HBox {
 				case 0:
 					mod_type.getSelectionModel().select("Default");break;
 				case 1:
-					mod_type.getSelectionModel().select("Lighter");break;
-				case 2:
 					mod_type.getSelectionModel().select("Darker");break;
+				case 2:
+					mod_type.getSelectionModel().select("Lighter");break;
 				case 3:
 					mod_type.getSelectionModel().select("Other");break;
 				case 4:
@@ -318,6 +303,7 @@ public class ColorSetFileView extends HBox {
 		
 		ColorGroup g = file.getGroup(current);
 		setColorGroup(g);
+		lbl_row.setText(String.format("      Editing row #%d – Corresponding normal map alpha: %d (%d%%)", current+1, colrows[current],(int)((100f*colrows[current])/255f)));
 		if (datfile != null) {
 			updating = true;
 			setDatGroup(datfile.getGroup(currentSet));
