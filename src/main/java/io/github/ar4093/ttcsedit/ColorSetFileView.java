@@ -39,7 +39,7 @@ public class ColorSetFileView extends HBox {
 	);
 	private List<String> other_desc = Arrays.asList("A lot lighter, glowy", "Lighter, glowy", "Lighter, glowy", "A lot lighter, glowy", "Light Gold", "Black or a lot darker", "Lighter", "Silver");
 	
-	private int[] colrows = {0, 17, 34, 51, 68, 85, 102, 119, 136, 153, 170, 187, 204, 221, 238, 255};
+	private int[] colrows = {0, 25, 49, 71, 89, 108, 124, 140, 156, 172, 187, 200, 216, 227, 243, 255};
 	
 	public ColorSetFileView ( ColorsetFile file, ColorsetDatFile datfile ) {
 		setAlignment(Pos.CENTER);
