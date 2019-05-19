@@ -10,21 +10,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Optional;
 
 public class ColorSetEditor extends Application {
-	private static final String VERSION = "2.2.5";
+	private static final String VERSION = "2.3";
 	private static final String WINDOW_TITLE_BASE = "TexTools Colour Set Editor";
 	private String savePath = "";
 	private Stage window;
@@ -116,70 +107,11 @@ public class ColorSetEditor extends Application {
 				}
 			}
 		}
-		String localappdata = System.getenv("LOCALAPPDATA");
-		if(DEBUG) {try { logwriter.write("getSavedPath: LOCALAPPDATA = "+localappdata+"\n"); }catch(Exception e){e.printStackTrace();}}
-		Path configpath;
-		if (localappdata == null) {
-			localappdata = System.getProperty("user.home");
-			if (localappdata == null) {
-				showError("Startup Error", "Could not find TexTools config directory.", "Have you run TexTools at least once?\nIf yes, please message SifridExtan#2581 on Discord to try and fix this.\n\nInfo: user.home not defined");
-				Platform.exit();
-			} else
-				localappdata += "\\AppData\\Local";
-		}
-		if(DEBUG) {try { logwriter.write("getSavedPath: LocalAppData set to "+localappdata+"\n"); }catch(Exception e){e.printStackTrace();}}
-		configpath = Paths.get(localappdata + "\\FFXIV_TexTools2");
-		File configfile = null;
-		if (!Files.isDirectory(configpath)) {
-			showError("Startup Error", "Could not find TexTools config directory.", "Have you run TexTools at least once?\nIf yes, please message SifridExtan#2581 on Discord to try and fix this.");
-			Platform.exit();
-		}
-		
-		try {
-			Optional<File> mostRecentFileOrFolder =
-				Arrays.stream(configpath.toFile().listFiles()).max((f1, f2) -> Long.compare(f1.lastModified(),
-							f2.lastModified()));
-			
-			if (mostRecentFileOrFolder.isPresent()) {
-				configfile = mostRecentFileOrFolder.get().listFiles()[0].listFiles()[0];
-			} else {
-				showError("Startup Error", "TexTools config folder empty.","");
-			}
-			//System.out.println("Configfile: " + configfile.toString());
-			if (!configfile.exists() || !configfile.getName().equals("user.config")) {
-				showError("Startup Error", "Could not find TexTools config file.", "Have you run TexTools at least once?\nIf yes, please message SifridExtan#2581 on Discord to try and fix this.");
-				Platform.exit();
-			}
-		} catch (Exception e) {
-			showException("Startup Error", "Could not find Textools config file.","Have you run TexTools at least once?\nIf yes, please message SifridExtan#2581 on Discord to try and fix this.", e);
-			Platform.exit();
-		}
-	
-		if(DEBUG) {try { logwriter.write("getSavedPath: configfile = "+configfile.getAbsolutePath()+"\n");logwriter.flush(); }catch(Exception e){e.printStackTrace();}}
-		if (configfile != null && !configfile.canRead()) {
-			showError("Startup Error", "Can't read TexTools config file.", "Try running this in administrator mode.");
-			Platform.exit();
-		}
-		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(configfile);
-			doc.getDocumentElement().normalize();
-			NodeList settings = doc.getElementsByTagName("setting");
-			for (int i = 0; i < settings.getLength(); i++) {
-				if (settings.item(i).getAttributes().getNamedItem("name").getNodeValue().equals("Save_Directory")) {
-					savePath = ((Element) (settings.item(i))).getElementsByTagName("value").item(0).getTextContent();
-					//System.out.println("Save Path found: " + savePath);
-				}
-			}
-			
-		} catch (Exception e) {
-			showException("Startup Error", "Error reading TexTools config file.", null, e);
-			Platform.exit();
+		else {
+			changeSavePath();
 		}
 	
 		if(DEBUG) {try { logwriter.write("getSavedPath: savePath = "+savePath);logwriter.flush(); }catch(Exception e){e.printStackTrace();}}
-		//}
 	}
 	
 	private void writeSavePath() {
@@ -303,20 +235,7 @@ public class ColorSetEditor extends Application {
 			}
 		});
 		mbAbout.setOnAction(e -> showAbout());
-		mbSetSavedPath.setOnAction(e -> {
-			DirectoryChooser dc = new DirectoryChooser();
-			dc.setTitle("Choose the\"Saved\" folder to look for files in.");
-			if(!(savePath==null||savePath.isEmpty())&&(new File(savePath).exists()))
-				dc.setInitialDirectory(new File(savePath));
-			File f = dc.showDialog(window);
-			if(f.exists()) {
-				savePath = f.getAbsolutePath();
-				writeSavePath();
-				buildTree();
-			} else {
-				showError("Directory not found", "Your chosen directory doesn't exist.","The directory "+f.getAbsolutePath()+" doesn't exist. Please choose another.");
-			}
-		});
+		mbSetSavedPath.setOnAction(e -> changeSavePath());
 		
 		BorderPane root = new BorderPane();
 		root.setTop(toolbar);
@@ -382,6 +301,21 @@ public class ColorSetEditor extends Application {
 		window.setScene(scene);
 		window.sizeToScene();
 		window.show();
+	}
+	
+	private void changeSavePath() {
+		DirectoryChooser dc = new DirectoryChooser();
+		dc.setTitle("Choose the\"Saved\" folder to look for files in.");
+		if(!(savePath==null||savePath.isEmpty())&&(new File(savePath).exists()))
+			dc.setInitialDirectory(new File(savePath));
+		File f = dc.showDialog(window);
+		if(f.exists()) {
+			savePath = f.getAbsolutePath();
+			writeSavePath();
+			buildTree();
+		} else {
+			showError("Directory not found", "Your chosen directory doesn't exist.","The directory "+f.getAbsolutePath()+" doesn't exist. Please choose another.");
+		}
 	}
 	
 	private void closeRequest( Event evt) {

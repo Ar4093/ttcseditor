@@ -104,7 +104,7 @@ public class ColorView extends HBox {
 	@FXML
 	private void updateFromPicker () {
 		Color c = picker.getValue();
-		color = new ColorRGBA(new HFloat((float) c.getRed()), new HFloat((float) c.getGreen()), new HFloat((float) c.getBlue()), new HFloat((float) c.getOpacity()));
+		color = new ColorRGBA((int) Math.ceil(255.f*c.getRed()), (int) Math.ceil(255.f*c.getGreen()), (int) Math.ceil(255.f*c.getBlue()), (int) Math.ceil(255.f*c.getOpacity()));
 		applyColor();
 	}
 	
